@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .wrapper{
+        display: block;
+    }
+    .res{
+        display: flex;
+        background-color: beige;
+        margin: auto;
+        padding: 15px;
+        text-align: center;
+        border: 1px solid black;
+        width: 300px;
+        height: 250px;
+        flex-direction: column;
+    }
+    input{
+        height: 60px;
+        font-size: 24px;
+        padding: 10px;
+    }
+    button{
+        margin: 10px;
+        height: 60px;
+        width: 100px;
+    }
+    .auth{
+        display: none;
+        background-color: beige;
+        margin: auto;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid black;
+        width: 350px;
+        height: 250px;
+        flex-direction: column;
+    }
+</style>
+<body>
+    <div class="wrapper">
+        <div class="res">
+            <input class="name" placeholder="name" type="text"/>
+            <input class="password" placeholder="password" type="text"/>
+            <input class="twopassword" placeholder="password_confirm" type="text"/>
+            <button onclick="func()">Регистрация</button>
+        </div>
+    </div>
+    <div class="auth">
+        <input class="auth_name" placeholder="name" type="text"/>
+        <input class="auth_password" placeholder="password" type="text"/>
+        <button onclick="funcAuth()">Войти</button>
+    </div>
+    <div class="content" style="display: none;">
+        <h2>Hello</h2>
+        <p>Наш сайт такой и такой</p>
+        <button onclick="logout()">Выход</button>
+    </div>
+    <button onclick="reload()">Авторизация</button>
+    <button onclick="reload_register()">Регистрация</button>
+</body>
+<script>
+    getAuth();
+    function logout(){
+        sessionStorage.removeItem('auth');
+        if(sessionStorage.getItem('auth') == null){
+            document.querySelector('.content').style.display = 'none'
+            document.querySelector('.auth').style.display = 'block'
+        }
+        
+        
+    }
+    function getAuth(){
+        if(sessionStorage.getItem('auth') != null){
+            document.querySelector('.wrapper').style.display = 'none';
+            document.querySelector('.auth').style.display = 'none';
+            document.querySelector('.content').style.display = 'block';
+        }
+    }
+    function funcAuth(){
+        let auth_name = document.querySelector('.auth_name').value
+        let auth_password = document.querySelector('.auth_password').value
+
+        if(auth_name != ''){
+           let data = JSON.parse(sessionStorage.getItem('register_user'))
+           console.log(data)
+           for(item of data){
+            item = JSON.parse(item);
+            if(auth_name == item.name && auth_password == item.password){
+                success(item);
+                break;
+            }
+            console.log(item)
+           }
+            
+        }
+    }
+
+    function success(obj){
+        sessionStorage.setItem('auth', JSON.stringify(obj));
+        sessionStorage.setItem('msg', 'Успешная авторизация');
+        document.querySelector('.auth').style.display = 'none';
+        document.querySelector('.content').style.display = 'block';
+        console.log('Успешная авторизация')
+    }
+
+     function reload(){
+        if(sessionStorage.getItem('register_user') != null){
+            let register_data = JSON.parse(sessionStorage.getItem('register_user'))
+            document.querySelector('.wrapper').style.display = 'none';
+            document.querySelector('.auth').style.display = 'block';
+        }
+     }
+     function reload_register(){
+        if(sessionStorage.getItem('register_user') != null){
+            let register_data = JSON.parse(sessionStorage.getItem('register_user'))
+            document.querySelector('.wrapper').style.display = 'block';
+            document.querySelector('.auth').style.display = 'none';
+        }
+     }
+    function func(){
+        let inp_name = document.querySelector('.name').value 
+        let inp_password = document.querySelector('.password').value
+        let inp_twopassword = document.querySelector('.twopassword').value
+        let error = [];
+        if((error = validate(inp_name, inp_password, inp_twopassword)).length == 0){
+            if(sessionStorage.getItem('register_user') == null){
+                let obj = {
+                    name: inp_name,
+                    password: inp_password
+                }
+                let data = [];
+                let json_obj = JSON.stringify(obj);
+                data.push(json_obj)
+                data = JSON.stringify(data);
+                sessionStorage.setItem('register_user', data)
+            }else{
+                let data = JSON.parse(sessionStorage.getItem('register_user'))
+                let obj = {
+                    name: inp_name,
+                    password: inp_password
+                }
+                let json_obj = JSON.stringify(obj);
+                data.push(json_obj)
+                data = JSON.stringify(data);
+                sessionStorage.setItem('register_user', data)
+            }
+            // console.log(JSON.parse(sessionStorage.getItem('register_user')));
+            // window.location = '/';
+            reload();
+        }else{
+            console.log(error)
+        }
+       
+        // let flag = false;
+        // if(inp_name == ''){
+        //     console.log("Заполинте Name")
+        //     flag = true;
+        // } 
+        // if(inp_password == ''){
+        //     console.log('Заоплинте Password')
+        //     flag = true;
+        // }
+        // if(flag == false){
+        //     if(inp_password !== inp_twopassword){
+        //     console.log("Пароли не совпадают")
+        //   }else{
+        //     console.log("Регистацрия завершена")
+        //   }
+        // }
+       
+        // if( inp_password != inp_twopassword ){
+        //     console.log('не равны')
+        // }else if(inp_name && inp_password && inp_twopassword){
+            
+        // } 
+    }
+
+    function validate(name, password, password_confirm){
+        let error = [];
+
+        // inp_name == ''?error.push('Заполинте имя'):''
+        // inp_password == ''?error.push('Заполинте пароль'):''
+        if(name == ''){
+            error.push('Заполните имя')
+        }
+        if(password == ''){
+            error.push('Заполинте пароль' )
+        }
+        if(password != password_confirm){
+            error.push('пароли не совпадают')
+        }
+        
+        return error;
+    }
+</script>
+</html>
